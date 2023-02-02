@@ -1,16 +1,55 @@
 // require in the database adapter functions as you write them (createUser, createActivity...)
 // const { } = require('./');
+const{createUser} = require('./users')
+const {createActivity,getAllActivities}=require('./activities')
+const {createRoutine,getRoutinesWithoutActivities,getAllRoutines}=require('./routines')
+const {addActivityToRoutine}=require('./routine_activities')
 const client = require("./client")
 
 async function dropTables() {
   console.log("Dropping All Tables...")
   // drop all tables, in the correct order
+ await client.query(`
+ DROP TABLE IF EXISTS routine_activities;
+ DROP TABLE IF EXISTS routines;
+ DROP TABLE IF EXISTS activities;
+ DROP TABLE IF EXISTS users;
+ `);
 }
 
 async function createTables() {
   console.log("Starting to build tables...")
   // create all tables, in the correct order
+  await client.query(`
+  CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    username varchar(255) UNIQUE NOT NULL,
+    password varchar(255) NOT NULL
+  );
+  CREATE TABLE activities (
+    id SERIAL PRIMARY KEY,
+    name varchar(255) UNIQUE NOT NULL,
+    description TEXT NOT NULL
+  );
+  CREATE TABLE routines (
+    id SERIAL PRIMARY KEY,
+    "creatorId" INTEGER REFERENCES users(id),
+    "isPublic" BOOLEAN DEFAULT false,
+    name varchar(255) UNIQUE NOT NULL,
+    goal TEXT NOT NULL
+  );
+  CREATE TABLE routine_activities (
+    id SERIAL PRIMARY KEY,
+    "routineId" INTEGER REFERENCES routines(id),
+    "activityId" INTEGER REFERENCES activities(id),
+     duration INTEGER,
+     count INTEGER,
+     UNIQUE ("routineId", "activityId")
+  );
+  `)
+  console.log("Finished building tables!")
 }
+
 
 /* 
 
@@ -111,6 +150,7 @@ async function createInitialRoutineActivities() {
   console.log("starting to create routine_activities...")
   const [bicepRoutine, chestRoutine, legRoutine, cardioRoutine] =
     await getRoutinesWithoutActivities()
+  
   const [bicep1, bicep2, chest1, chest2, leg1, leg2, leg3] =
     await getAllActivities()
 
