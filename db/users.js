@@ -1,65 +1,63 @@
+/* eslint-disable no-useless-catch */
 const client = require('./client');
-const util = require ('./util');
+const bcrypt = require('bcrypt');
+const SALT_COUNT = 10;
 
 
 // database functions
 
 // user functions
 async function createUser({ username, password }) {
-
-  // eslint-disable-next-line no-useless-catch
+  const hashedPassword = await bcrypt.hash(password, SALT_COUNT);
   try {
-    const { rows: [user], } = await client.query(`
-  INSERT INTO users(username,password)
-  VALUES($1,$2)
-  ON CONFLICT (username) DO NOTHING
-  RETURNING username;
-  `, [username, password]);
+    const { rows: [user] } = await client.query(`
+      INSERT INTO users(username, password) VALUES ($1, $2)
+      ON CONFLICT (username) DO NOTHING 
+      RETURNING id, username
+    `, [username, hashedPassword]);
+    return user;
+  } catch (error) {
+    throw error;
+  }
+}
+async function getUser({ username, password }) {
+  if (!username || !password) {
+    return;
+  }
 
-    return user
+  try {
+    const user = await getUserByUsername(username);
+    if (!user) return;
+    const hashedPassword = user.password;
+    const passwordsMatch = await bcrypt.compare(password, hashedPassword);
+    if (!passwordsMatch) return;
+    delete user.password;
+    return user;
   } catch (error) {
     throw error;
   }
 }
 
-async function getUser({ username, password }) {
-  // eslint-disable-next-line no-useless-catch
-  try {
-    const user = await getUserByUsername(username)
-
-    if (user.password !== password) {
-      return null
-    } else {
-      return {
-        id: user.id,
-        username: user.username
-      }
-    }
-
-  } catch (error) {
-    throw error
-  }
-
-}
-
 async function getUserById(userId) {
-
-  // eslint-disable-next-line no-useless-catch
+  // first get the user
   try {
-    const { rows } = await client.query(`
-SELECT * FROM users
-WHERE id=$1
-`, [userId])
-
-    return rows
+    const { rows: [user] } = await client.query(`
+      SELECT *
+      FROM users
+      WHERE id = $1;
+    `, [userId]);
+    // if it doesn't exist, return null
+    if (!user) return null;
+    // if it does:
+    // delete the 'password' key from the returned object
+    delete user.password;
+    return user;
   } catch (error) {
-    throw error
+    throw error;
   }
 }
-
-
-
 async function getUserByUsername(userName) {
+  // first get the user
   try {
     const { rows } = await client.query(`
       SELECT *
@@ -77,7 +75,6 @@ async function getUserByUsername(userName) {
     console.error(error)
   }
 }
-
 module.exports = {
   createUser,
   getUser,

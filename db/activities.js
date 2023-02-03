@@ -1,26 +1,11 @@
+/* eslint-disable no-useless-catch */
 const client = require('./client');
-
+const util = require('./util');
 
 // database functions
-async function createActivity({ name, description }) {
-  // eslint-disable-next-line no-useless-catch
-  try {
-    const { rows: [activity] } = await client.query(`
-      INSERT INTO activities(name, description) VALUES ($1, $2)
-      ON CONFLICT (name) DO NOTHING 
-      RETURNING *
-    `, [name, description]);
-    return activity;
-  } catch (error) {
-    throw error;
-  }
-}
-
 async function getAllActivities() {
-  // select and return an array of all activities
-  // eslint-disable-next-line no-useless-catch
   try {
-    const {rows} = await client.query (`
+    const { rows } = await client.query(`
       SELECT * FROM activities;
     `);
     return rows;
@@ -28,24 +13,20 @@ async function getAllActivities() {
     throw error;
   }
 }
-
 async function getActivityById(id) {
-    // eslint-disable-next-line no-useless-catch
-    try {
-      const { rows: [activity] } = await client.query(`
+  try {
+    const { rows: [activity] } = await client.query(`
       SELECT * FROM activities
       WHERE id = $1
     `, [id]);
-      return activity;
-    } catch (error) {
-      throw error;
-    }
+    return activity;
+  } catch (error) {
+    throw error;
   }
-
+}
 async function getActivityByName(name) {
-  // eslint-disable-next-line no-useless-catch
   try {
-    const {rows: [activity]} = await client.query (`
+    const { rows: [activity] } = await client.query(`
       SELECT * FROM activities
       WHERE name = $1
     `, [name]);
@@ -54,7 +35,19 @@ async function getActivityByName(name) {
     throw error;
   }
 }
-
+async function getActivitiesByRoutineId(id) {
+  try {
+    const { rows: activities } = await client.query(`
+    SELECT activities.*, routine_activities.duration, routine_activities.count, routine_activities.id AS "routineActivityId"
+    FROM activities 
+    JOIN routine_activities ON routine_activities."activityId" = activities.id
+    WHERE routine_activities."routineId" = $1;
+  `, [id]);
+    return activities;
+  } catch (error) {
+    throw error;
+  }
+}
 async function attachActivitiesToRoutines(routines) {
   // no side effects
   const routinesToReturn = [...routines];
@@ -62,7 +55,6 @@ async function attachActivitiesToRoutines(routines) {
   const routineIds = routines.map(routine => routine.id);
   if (!routineIds?.length) return;
 
-  // eslint-disable-next-line no-useless-catch
   try {
     // get the activities, JOIN with routine_activities (so we can get a routineId), and only those that have those routine ids on the routine_activities join
     const { rows: activities } = await client.query(`
@@ -85,8 +77,21 @@ async function attachActivitiesToRoutines(routines) {
   }
 }
 
+// select and return an array of all activities
+async function createActivity({ name, description }) {
+  try {
+    const { rows: [activity] } = await client.query(`
+      INSERT INTO activities(name, description) VALUES ($1, $2)
+      ON CONFLICT (name) DO NOTHING 
+      RETURNING *
+    `, [name, description]);
+    return activity;
+  } catch (error) {
+    throw error;
+  }
+}
+// return the new activity
 async function updateActivity({ id, ...fields }) {
-  // eslint-disable-next-line no-useless-catch
   try {
     const toUpdate = {}
     for (let column in fields) {
@@ -108,12 +113,15 @@ async function updateActivity({ id, ...fields }) {
     throw error
   }
 }
-
+// don't try to update the id
+// do update the name and description
+// return the updated activity
 module.exports = {
   getAllActivities,
   getActivityById,
   getActivityByName,
+  getActivitiesByRoutineId,
   attachActivitiesToRoutines,
   createActivity,
   updateActivity,
-};
+}
