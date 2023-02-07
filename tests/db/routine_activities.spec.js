@@ -1,7 +1,5 @@
 /*
-
 DO NOT CHANGE THIS FILE
-
 */
 require("dotenv").config();
 const client = require("../../db/client");
@@ -89,7 +87,7 @@ describe("DB Routine Activities", () => {
   });
 
   describe("updateRoutineActivity({ id, count, duration })", () => {
-    it("Finds the routine with id equal to the passed in id. Updates the count or duration as necessary.", async () => {
+  it("Finds the routine with id equal to the passed in id. Updates the count or duration as necessary.", async () => {
       const fakeRoutineActivity = await createFakeRoutineActivity();
 
       const newRoutineActivityData = {

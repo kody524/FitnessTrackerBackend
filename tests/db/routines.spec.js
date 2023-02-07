@@ -1,7 +1,5 @@
 /*
-
 DO NOT CHANGE THIS FILE
-
 */
 require("dotenv").config();
 const faker = require("faker");
@@ -105,13 +103,13 @@ describe("DB Routines", () => {
     fakeRoutineActivity = fakeData.fakeRoutineActivities[0];
   });
 
-  afterAll(async () => {
-    client.query(`
+   afterAll(async () => {
+     client.query(`
         DELETE FROM routine_activities;
         DELETE FROM routines;
-        DELETE FROM activities;
+         DELETE FROM activities;
       `);
-  });
+   });
 
   /****Before writing the functions for these tests, go to routine_activities.js
      and write the addActivityToRoutine function.****/
@@ -143,12 +141,12 @@ describe("DB Routines", () => {
       expectRoutinesToContainRoutine(routines, fakeRoutine);
     });
 
-    it("Should include the private routine", async () => {
+   it("Should include the private routine", async () => {
       const routines = await getAllRoutines();
       expectRoutinesToContainRoutine(routines, fakePrivateRoutine);
     });
 
-    it("includes their activities", async () => {
+   it("includes their activities", async () => {
       const routines = await getAllRoutines();
       const routine = routines.find((routine) => routine.id === fakeRoutine.id);
       expectRoutineToContainActivity(routine, fakeActivity);
@@ -344,7 +342,7 @@ describe("DB Routines", () => {
     });
   });
 
-  describe("getPublicRoutinesByActivity", () => {
+ describe("getPublicRoutinesByActivity", () => {
     it("should include the public routine containing a specific activityId", async () => {
       const routines = await getPublicRoutinesByActivity(fakeActivity);
       expectRoutinesToContainRoutineWithActivity(

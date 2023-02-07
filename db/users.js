@@ -1,5 +1,5 @@
 
-const e = require("express");
+
 const client = require("./client");
 
 // database functions
@@ -9,11 +9,11 @@ async function createUser({ username, password }) {
 
 // eslint-disable-next-line no-useless-catch
 try{
-  const {rows: [user],}= await client.query(`
+  const {rows: [user]}= await client.query(`
   INSERT INTO users(username,password)
   VALUES($1,$2)
   ON CONFLICT (username) DO NOTHING
-  RETURNING username;
+  RETURNING id, username;
   `,[username,password]);
 
   return user
@@ -46,12 +46,14 @@ async function getUserById(userId) {
   
 // eslint-disable-next-line no-useless-catch
 try{
-const{rows}= await client.query(`
-SELECT * FROM users
+
+const{rows:[user]}= await client.query(`
+SELECT id,username FROM users
 WHERE id=$1
+
 `,[userId])
 
-return rows
+return user
 }catch(error){
   throw error
 }

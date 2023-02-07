@@ -83,15 +83,20 @@ async function destroyRoutineActivity(id) {
 }
 
 async function canEditRoutineActivity(routineActivityId, userId) {
+  
   // eslint-disable-next-line no-useless-catch
-  try{
-    const{rows}= await client.query(`
-    SELECT * FROM routine_activity
-    WHERE id=$1 AND 
-    `)
-  }catch(error){
-    throw error
-  }
+ try{
+    const { rows: [routineFromRoutineActivity] } = await client.query(`
+        SELECT * FROM routine_activities
+        JOIN routines ON routine_activities."routineId" = routines.id
+        AND routine_activities.id = $1
+      `, [routineActivityId]);
+      
+    return routineFromRoutineActivity.creatorId === userId;
+  
+ }catch(error){
+throw error
+ }
 }
 
 module.exports = {

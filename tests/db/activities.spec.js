@@ -1,7 +1,6 @@
+
 /*
-
 DO NOT CHANGE THIS FILE
-
 */
 require("dotenv").config();
 const client = require("../../db/client");

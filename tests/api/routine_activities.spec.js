@@ -120,7 +120,7 @@ describe("/api/routine_activities", () => {
       expectNotToBeError(response.body);
 
       expect(response.body).toStrictEqual(
-        objectContaining(fakeRoutineActivity)
+        objectContaining(fakeRoutineActivxity)
       );
     });
 
