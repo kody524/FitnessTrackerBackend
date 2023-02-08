@@ -1,18 +1,4 @@
-/* eslint-disable no-useless-catch */
-const client = require('./client');
-const util = require('./util');
-
-async function getRoutineActivityById(id) {
-  try {
-    const { rows: [routineActivity] } = await client.query(`
-      SELECT * FROM routine_activities
-      WHERE id = $1
-    `, [id]);
-    return routineActivity;
-  } catch (error) {
-    throw error;
-  }
-}
+const client = require("./client");
 
 async function addActivityToRoutine({
   routineId,
@@ -20,90 +6,102 @@ async function addActivityToRoutine({
   count,
   duration,
 }) {
+
+  // eslint-disable-next-line no-useless-catch
   try {
-    const { rows: [routineActivity] } = await client.query(`
-    INSERT INTO routine_activities ( "routineId", "activityId", count , duration)
-    VALUES($1, $2, $3, $4)
-    ON CONFLICT ("routineId", "activityId") DO NOTHING
-    RETURNING *;
-      `, [routineId, activityId, count, duration]);
-    return routineActivity;
+    const { rows: [activities] } = await client.query(`
+    INSERT INTO routine_activities("routineId","activityId",count,duration)
+    VALUES($1,$2,$3,$4)
+    RETURNING *
+    `, [routineId, activityId, count, duration]);
+
+    return activities
   } catch (error) {
-    throw error;
+    throw error
   }
 }
 
-async function getAllRoutineActivities() {
+async function getRoutineActivityById(id) {
+  // eslint-disable-next-line no-useless-catch
   try {
-    const { rows } = await client.query(`
-      SELECT * FROM routine_activities;
-    `);
-    return rows;
+    const { rows: [activity] } = await client.query(`
+    SELECT * FROM routine_activities
+    WHERE id=$1
+    `, [id])
+    return activity
   } catch (error) {
-    throw error;
+    throw error
   }
 }
 
 async function getRoutineActivitiesByRoutine({ id }) {
+  // eslint-disable-next-line no-useless-catch
   try {
+
     const { rows } = await client.query(`
-      SELECT * FROM routine_activities
-      WHERE "routineId" = ${id}
-    `);
-    return rows;
+    SELECT * FROM routine_activities
+    WHERE "routineId"=$1
+    `, [id])
+
+    return rows
   } catch (error) {
-    throw error;
+    throw error
   }
 }
 
 async function updateRoutineActivity({ id, ...fields }) {
+  // eslint-disable-next-line no-useless-catch
   try {
-    const toUpdate = {}
-    for (let column in fields) {
-      if (fields[column] !== undefined) toUpdate[column] = fields[column];
-    }
-    let routineActivity;
-    if (util.dbFields(fields).insert.length > 0) {
-      const { rows } = await client.query(`
-        UPDATE routine_activities
-        SET ${util.dbFields(toUpdate).insert}
-        WHERE id = ${id}
-        RETURNING *;
-      `, Object.values(toUpdate));
-      routineActivity = rows[0];
-      return routineActivity;
-    }
+
+    let { count, duration } = fields
+    const { rows: [activity] } = await client.query(`
+UPDATE routine_activities
+SET count=$1,duration=$2
+WHERE id=$3
+RETURNING *
+`, [count, duration, id])
+    return activity
   } catch (error) {
-    throw error;
+    throw error
   }
 }
 
 async function destroyRoutineActivity(id) {
+  // eslint-disable-next-line no-useless-catch
   try {
-    const { rows: [routineActivity] } = await client.query(`
-        DELETE FROM routine_activities 
-        WHERE id = $1
-        RETURNING *;
-    `, [id]);
-    return routineActivity;
+    const { rows: [activity] } = await client.query(`
+    DELETE FROM routine_activities 
+    WHERE id=$1
+    RETURNING *
+    `, [id])
+
+    return activity
   } catch (error) {
-    throw error;
+    throw error
   }
+
 }
 
 async function canEditRoutineActivity(routineActivityId, userId) {
-  const { rows: [routineFromRoutineActivity] } = await client.query(`
-      SELECT * FROM routine_activities
-      JOIN routines ON routine_activities."routineId" = routines.id
-      AND routine_activities.id = $1
-    `, [routineActivityId]);
-  return routineFromRoutineActivity.creatorId === userId;
+
+  // eslint-disable-next-line no-useless-catch
+  try {
+    const { rows: [routineFromRoutineActivity] } = await client.query(`
+        SELECT * FROM routine_activities
+        JOIN routines ON routine_activities."routineId" = routines.id
+        AND routine_activities.id = $1
+      `, [routineActivityId]);
+
+    return routineFromRoutineActivity.creatorId === userId;
+
+  } catch (error) {
+    throw error
+  }
 }
 
 module.exports = {
   getRoutineActivityById,
   addActivityToRoutine,
-  getAllRoutineActivities,
   getRoutineActivitiesByRoutine,
   updateRoutineActivity,
   destroyRoutineActivity,

@@ -102,9 +102,9 @@ describe("/api/routines", () => {
 
   describe("PATCH /api/routines/:routineId (**)", () => {
     xit("Updates a routine, notably changing public/private, the name, and the goal", async () => {
-      const { fakeUser, token } = await createFakeUserWithToken("Bradley");
-      // Create a routine so we can update it.
-      const routine = await createFakePublicRoutine(
+      const { fakeUser, token } = awaitcreateFakeUserWithToken("Bradley");
+      // Create a routine so we can update xit.
+      const routine = awaitcreateFakePublicRoutine(
         fakeUser.id,
         "On Tuesdays",
         "Until tuesdays don't exist"
@@ -116,7 +116,7 @@ describe("/api/routines", () => {
         goal: "Until I lose 10 lbs.",
       };
 
-      const response = await request(app)
+      const response = awaitrequest(app)
         .patch(`/api/routines/${routine.id}`)
         .set("Authorization", `Bearer ${token}`)
         .send(newRoutineData);
@@ -127,8 +127,8 @@ describe("/api/routines", () => {
     });
 
     xit("Requires logged in user", async () => {
-      // Create a routine so we can update it.
-      const { fakeUser } = await createFakeUserWithToken("Jefferson");
+      // Create a routine so we can update xit.
+      const { fakeUser } = awaitcreateFakeUserWithToken("Jefferson");
       const fakeRoutine = createFakePublicRoutine(
         fakeUser.id,
         "On the weekends",
@@ -141,18 +141,18 @@ describe("/api/routines", () => {
         goal: "Until I give up",
       };
 
-      const response = await request(app)
+      const response = awaitrequest(app)
         .patch(`/api/routines/${fakeRoutine.id}`)
         .send(newRoutineData);
 
       expectToHaveErrorMessage(response.body, UnauthorizedError());
     });
 
-    xit("returns a 403 when a user tries to edit a routine that is not theirs", async () => {
-      const { fakeUser } = await createFakeUserWithToken("Marques");
+    xit("returns a 403 when a user tries to edita routine that is not theirs", async () => {
+      const { fakeUser } = awaitcreateFakeUserWithToken("Marques");
       const { fakeUser: anotherUser, token: anotherUsersToken } =
-        await createFakeUserWithToken("Mandy");
-      const fakeRoutine = await createFakePublicRoutine(
+        awaitcreateFakeUserWithToken("Mandy");
+      const fakeRoutine = awaitcreateFakePublicRoutine(
         fakeUser.id,
         "Every day",
         "Until I'm exhausted"
@@ -164,7 +164,7 @@ describe("/api/routines", () => {
         goal: "until I'm exhausted",
       };
 
-      const response = await request(app)
+      const response = awaitrequest(app)
         .patch(`/api/routines/${fakeRoutine.id}`)
         .send(newRoutineData)
         .set("Authorization", `Bearer ${anotherUsersToken}`);
@@ -179,9 +179,9 @@ describe("/api/routines", () => {
   });
 
   describe("DELETE /api/routines/:routineId (**)", () => {
-    xit("Hard deletes a routine. Makes sure to delete all the routineActivities whose routine is the one being deleted.", async () => {
-      // Create a routine so we can delete it
-      const { fakeUser, token } = await createFakeUserWithToken("John");
+    xit("Hard deletes a routine. Makes sure to delete all the routineActivxities whose routine is the one being deleted.", async () => {
+      // Create a routine so we can delete xit
+      const { fakeUser, token } = awaitcreateFakeUserWithToken("John");
       const fakeRoutine = await createFakePublicRoutine(
         fakeUser.id,
         "On Thursdays",
