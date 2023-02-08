@@ -1,27 +1,39 @@
 // require in the database adapter functions as you write them (createUser, createActivity...)
 // const { } = require('./');
-const { createUser } = require("./users");
-const { createActivity, getAllActivities } = require("./activities");
+// const { createUser } = require("./users");
+// const { createActivity, getAllActivities } = require("./activities");
+// const { createRoutine, getRoutinesWithoutActivities } = require("./routines");
+// const { addActivityToRoutine } = require("./routine_activities");
+// const client = require("./client");
+
 const {
-  createRoutine,
+  createUser,
+  getAllActivities,
+  createActivity,
   getRoutinesWithoutActivities,
-  getAllRoutines,
-} = require("./routines");
-const { addActivityToRoutine } = require("./routine_activities");
+  createRoutine,
+  addActivityToRoutine,
+} = require("./");
 const client = require("./client");
 
 async function dropTables() {
   console.log("Dropping All Tables...");
   // drop all tables, in the correct order
-  await client.query(`
+  // eslint-disable-next-line no-useless-catch
+  try {
+    await client.query(`
   DROP TABLE IF EXISTS routine_activities;
   DROP TABLE IF EXISTS routines;
   DROP TABLE IF EXISTS activities;
   DROP TABLE IF EXISTS users;
   `);
+  } catch (error) {
+    throw error;
+  }
 }
 
 async function createTables() {
+  try {
   console.log("Starting to build tables...");
   // create all tables, in the correct order
   await client.query(`
@@ -50,9 +62,11 @@ async function createTables() {
      count INTEGER,
      UNIQUE ("routineId", "activityId")
   );
-  `);
-  console.log("Finished building tables!");
-}
+  `)
+  } catch (error) {
+    console.error("Error while building the tables!")
+    throw error
+  }
 
 /* 
 

@@ -1,5 +1,4 @@
 const client = require("./client");
-const e = require("express");
 // database functions
 
 // user functions
@@ -45,15 +44,17 @@ async function getUser({ username, password }) {
 async function getUserById(userId) {
   // eslint-disable-next-line no-useless-catch
   try {
-    const { rows } = await client.query(
+    const {
+      rows: [user],
+    } = await client.query(
       `
-  SELECT * FROM users
+  SELECT id, username FROM users
   WHERE id=$1
   `,
       [userId]
     );
 
-    return rows;
+    return user;
   } catch (error) {
     throw error;
   }
