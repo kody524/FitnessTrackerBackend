@@ -19,7 +19,6 @@ async function dropTables() {
   }
 }
 
-
 async function createTables() {
   try {
     console.log("Starting to build tables...")
@@ -52,14 +51,11 @@ async function createTables() {
     );
   `)
 
-
   } catch (error) {
     console.error("Error while building the tables!")
     throw error
   }
-
 }
-
 
 /* 
 DO NOT CHANGE ANYTHING BELOW. This is default seed data, and will help you start testing, before getting to the tests. 
