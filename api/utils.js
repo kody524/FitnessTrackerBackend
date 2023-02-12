@@ -1,14 +1,16 @@
+const { UnauthorizedError } = require("../errors");
+
 function requireUser(req, res, next) {
     if (!req.user) {
-      next({
-        name: "MissingUserError",
-        message: "You must be logged in to perform this action"
-      });
+      res.status(401).send({
+        error:"UnauthorizedError",
+        name:"UnauthorizedError",
+        message:UnauthorizedError(),
+      })
+     
     }
-  
     next();
   }
   
-  module.exports = {
-    requireUser
-  }
+  module.exports = {requireUser}
+  

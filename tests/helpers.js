@@ -6,7 +6,7 @@ const {
   addActivityToRoutine,
 } = require("../db");
 const jwt = require("jsonwebtoken");
-const { JWT_SECRET = "neverTell" } = process.env;
+
 // This contains helper functions which create fake entries in the database
 // for the tests.
 
@@ -27,7 +27,7 @@ const createFakeUserWithToken = async (username) => {
 
   const token = jwt.sign(
     { id: fakeUser.id, username: fakeUser.username },
-    JWT_SECRET,
+  "neverTell",
     { expiresIn: "1w" }
   );
 

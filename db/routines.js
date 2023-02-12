@@ -123,7 +123,7 @@ async function getPublicRoutinesByActivity({ id }) {
         JOIN routine_activities ON routines.id = routine_activities."routineId"
         WHERE routine_activities."activityId" = $1 AND routines."isPublic" = TRUE
         `,[id]);
-        console.log('hi')
+        
     return attachActivitiesToRoutines(routines);
   } catch (error) {
     throw error;
@@ -176,22 +176,21 @@ if(!isPublic&&!goal){
 
 
 async function destroyRoutine(id) {
-// eslint-disable-next-line no-useless-catch
-try{
-  const{rows:activity}=await client.query(`
-DELETE FROM routine_activities
-WHERE "routineId"=$1
-`,[id])
-const{rows:routine}=await client.query(`
-DELETE FROM routines 
-WHERE id=$1
-`,[id])
-
-return activity,routine
-}catch(error){
-  throw error
-}
-
+  // eslint-disable-next-line no-useless-catch
+  try {
+    await client.query(`
+      DELETE FROM routine_activities
+      WHERE "routineId" = $1;
+      `, [id]);
+    const { rows: routine } = await client.query(`
+      DELETE FROM routines
+      WHERE id = $1
+      `, [id]);
+    return routine
+  
+  } catch (error) {
+    throw error;
+  }
 }
 
 module.exports = {

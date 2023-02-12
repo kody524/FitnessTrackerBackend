@@ -56,13 +56,11 @@ async function attachActivitiesToRoutines(routines) {
   try {
     // get the activities, JOIN with routine_activities (so we can get a routineId), and only those that have those routine ids on the routine_activities join
     const { rows: activities } = await client.query(`
-      SELECT activities.*,routine_activities.duration, routine_activities.count, routine_activities.id AS "routineActivityId", routine_activities."routineId"
+      SELECT activities.*, routine_activities.duration, routine_activities.count, routine_activities.id AS "routineActivityId", routine_activities."routineId"
       FROM activities 
       JOIN routine_activities ON routine_activities."activityId" = activities.id
       WHERE routine_activities."routineId" IN (${ binds });
-      
     `, routineIds);
-  
     // loop over the routines
     for(const routine of routinesToReturn) {
       // filter the activities to only include those that have this routineId
@@ -106,7 +104,7 @@ async function updateActivity({ id, ...fields }) {
     RETURNING *
     `,[description])
     return activity
-    }else{
+    }else if(!description){
       const{rows:[activity]}= await client.query(`
     UPDATE activities
     SET name=$1
@@ -114,6 +112,14 @@ async function updateActivity({ id, ...fields }) {
     RETURNING *
     `,[name])
     return activity
+    }else{
+      const{rows:[activity]}= await client.query(`
+      UPDATE activities
+      SET name=$1,description=$2
+      WHERE id=${id}
+      RETURNING *
+      `,[name,description])
+      return activity
     }
   }catch(error){
     throw error

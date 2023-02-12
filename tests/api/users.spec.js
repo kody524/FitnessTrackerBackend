@@ -195,7 +195,7 @@ describe("/api/users", () => {
         token: expect.any(String),
       });
       // Verify the JWT token
-      const parsedToken = jwt.verify(body.token, JWT_SECRET);
+      const parsedToken = jwt.verify(body.token, "neverTell");
       // The token should return an object just like the user
       expect(parsedToken).toMatchObject(user);
     });
