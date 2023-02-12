@@ -38,12 +38,12 @@ async function getRoutineActivitiesByRoutine({ id }) {
   // eslint-disable-next-line no-useless-catch
   try{
     
-    const {rows}= await client.query(`
+    const {rows:activities}= await client.query(`
     SELECT * FROM routine_activities
     WHERE "routineId"=$1
     `,[id])
   
-    return rows
+    return activities
   }catch(error){
     throw error
   }

@@ -24,7 +24,7 @@ router.patch('/:routineActivityId',async(req,res,next)=>{
                 const original = await getRoutineActivityById(ID)
                 const routine = await getRoutineById(original.routineId)
                 res.send({
-                    error: 'UnauthorizedError', name: '401', message: UnauthorizedUpdateError(username,routine[0].name)
+                    error: 'UnauthorizedError', name: '401', message: UnauthorizedUpdateError(username,routine.name)
                 })
             }
         }
@@ -54,7 +54,7 @@ router.delete('/:routineActivityId',async(req,res,next)=>{
                 const routine = await getRoutineById(original.routineId)
                 res.status(403)
                 res.send({
-                    error: 'UnauthorizedError', name: '401', message: UnauthorizedDeleteError(username,routine[0].name)
+                    error: 'UnauthorizedError', name: '401', message: UnauthorizedDeleteError(username,routine.name)
                 }) 
             }
         }

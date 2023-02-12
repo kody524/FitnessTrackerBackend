@@ -23,7 +23,7 @@ async function getRoutineById(id) {
   // eslint-disable-next-line no-useless-catch
   try{
     
-   const{rows:routine}=await client.query(`
+   const{rows:[routine]}=await client.query(`
     SELECT * FROM routines
     WHERE id=$1
     ;`,[id])
@@ -131,47 +131,23 @@ async function getPublicRoutinesByActivity({ id }) {
 }
 
 async function updateRoutine({ id, ...fields }) {
-  const{isPublic,name,goal}=fields;
-// eslint-disable-next-line no-useless-catch
-try {
-if(!isPublic&&!goal){
-  const{rows:[routine]}= await client.query(`
-  UPDATE routines
-  SET name=$1
-  WHERE id=$2
-  RETURNING *
-  `,[name,id])
-  return routine
-}if(!name&&!goal){
-  const{rows:[routine]}= await client.query(`
-  UPDATE routines
-  SET "isPublic"=$1
-  WHERE id=$2
-  RETURNING *
-  `,[isPublic,id])
-  return routine
-}if(!goal&&!isPublic){
-  const{rows:[routine]}= await client.query(`
-  UPDATE routines
-  SET name=$1
-  WHERE id=$2
-  RETURNING *
-  `,[name,id])
-  return routine
-}else{
-  const{rows:[routine]}= await client.query(`
-  UPDATE routines
-  SET "isPublic"=$1,name=$2,goal=$3
-  WHERE id=$4
-  RETURNING *
-  `,[isPublic,name,goal,id])
-  return routine
-}
-
-} catch (error) {
-  throw error;
-
-}
+  const setString = Object.keys(fields).map(
+    (key, index) => `"${key}"=$${index + 1}
+  `).join(', ');
+  // eslint-disable-next-line no-useless-catch
+  try {
+    if (setString.length > 0) {
+      const { rows: [routine] } = await client.query(`
+            UPDATE routines
+            SET ${setString}
+            WHERE id=${id}
+            RETURNING *;
+            `, Object.values(fields));
+      return routine;
+    }
+  } catch (error) {
+    throw error;
+  }
 }
 
 

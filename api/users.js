@@ -111,28 +111,30 @@ if (req.headers.authorization) {
 // GET /api/users/:username/routines
 router.get('/:username/routines', async(req,res,next)=>{
   const{username}=req.params
+  const getUser = await getUserByUsername(username)
   try{
-    if(req.params){
-      const routines = await getAllRoutinesByUser({username})
-      res.send(routines)
-    }
-    if (req.headers.authorization) {
       const usertoken = req.headers.authorization;
       const split = usertoken.split(' ');
       const token = split[1];
       const decoded = jwt.verify(token,"neverTell")
-      const routines = await getAllRoutinesByUser(decoded)
-      res.send(routines)
-    }else{
-     
-      res.send({
-        error: 'UnauthorizedError', name: '401', message: UnauthorizedError()
-      })
-      
-    }
+      if(!username) { 
+        next({
+          name: 'No User',
+          message: `Error looking up user ${username}`
+        });
+      } else if(decoded.username && getUser.id === decoded.id) {
+        const routines = await getAllRoutinesByUser({username: username});
+        res.send(routines);
+      } else {
+        const routines = await getPublicRoutinesByUser({username: username});
+        res.send(routines);
+      }
     
-  }
-  catch({name,message}){
+      
+      
+    
+    
+  }catch({name,message}){
     next({name,message})
 }
 
