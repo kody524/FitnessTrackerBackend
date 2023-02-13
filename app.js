@@ -7,11 +7,11 @@ const app = express();
 
 // Setup your Middleware and API Router here
 const apiRouter = require("./api");
-app.use("/api", apiRouter);
 app.use(express.json());
 app.use(cors());
 app.use(morgan("dev"));
 app.use(bodyParser.json());
+app.use("/api", apiRouter);
 app.get("*", (req, res) => {
   res.status(404).send({
     error: "404 - not found",
